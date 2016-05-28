@@ -17,6 +17,8 @@ import android.view.animation.*;
 import android.os.*;
 import android.content.*;
 import android.preference.*;
+import android.widget.*;
+import android.util.*;
 
 public class WaveView extends View {
     /**
@@ -74,33 +76,16 @@ public class WaveView extends View {
     private AnimatorSet mAnimatorSet;
     private Runnable mTicker;
     private Handler mHandler;
+    private int warna;
+    private boolean start;
   
 
-    public WaveView(Context context) {
-        super(context);
-        changeSettings();
-        init();
-        initAnimation();
-        
-        
-    }
-
-    public WaveView(Context context, AttributeSet attrs) {
+    public WaveView(final Context context, AttributeSet attrs) {
         super(context, attrs);
-        changeSettings();
+        changeSettings();  
         init();
         initAnimation();
-        
-        
-    }
-
-    public WaveView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        changeSettings();
-        init();
-        initAnimation();
-        
-        
+             
     }
     
     private void changeSettings(){
@@ -108,15 +93,19 @@ public class WaveView extends View {
         mTicker = new Runnable() {
 			public void run() {
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-                int warna = pref.getInt("wave_color",0x543AE6F5);
+                warna = pref.getInt("wave_color",0x543AE6F5);
                 mFrontWaveColor = warna;
                 mBehindWaveColor = adjustAlpha(warna,0.4f);
                 int h = 100 - (pref.getInt("wave_level",30));           
                 level = (float)h/100;
-                
-                WaveView.this.setShowWave(true);
-                if (mAnimatorSet != null) {
-                    mAnimatorSet.start();
+                start = pref.getBoolean("wave_start",true);
+                if(start == true){
+                    WaveView.this.setShowWave(true);
+                    if (mAnimatorSet != null) {
+                        mAnimatorSet.start();
+                    }
+                }else{
+                    WaveView.this.setShowWave(false);
                 }
                 
                 invalidate();
@@ -247,17 +236,25 @@ public class WaveView extends View {
 
         createShader();
     }
+    
+    
 
     /**
      * Create the shader with default waves which repeat horizontally, and clamp vertically
      */
     private void createShader() {
-        mDefaultAngularFrequency = 2.0f * Math.PI / DEFAULT_WAVE_LENGTH_RATIO / getWidth();
-        mDefaultAmplitude = getHeight() * DEFAULT_AMPLITUDE_RATIO;
-        mDefaultWaterLevel = getHeight() * DEFAULT_WATER_LEVEL_RATIO;
-        mDefaultWaveLength = getWidth();
+        
+        
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        
+        mDefaultAngularFrequency = 2.0f * Math.PI / DEFAULT_WAVE_LENGTH_RATIO / width;
+        mDefaultAmplitude = height * DEFAULT_AMPLITUDE_RATIO;
+        mDefaultWaterLevel = height * DEFAULT_WATER_LEVEL_RATIO;
+        mDefaultWaveLength = width;
 
-        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint wavePaint = new Paint();
@@ -266,8 +263,8 @@ public class WaveView extends View {
 
         // Draw default waves into the bitmap
         // y=Asin(ωx+φ)+h
-        final int endX = getWidth() + 1;
-        final int endY = getHeight() + 1;
+        final int endX = width + 1;
+        final int endY = height + 1;
 
         float[] waveY = new float[endX];
 
@@ -289,7 +286,10 @@ public class WaveView extends View {
         // use the bitamp to create the shader
         mWaveShader = new BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.CLAMP);
         mViewPaint.setShader(mWaveShader);
+                
     }
+    
+    
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -329,7 +329,7 @@ public class WaveView extends View {
         } else {
             mViewPaint.setShader(null);
         }
-        //createShader();
+        
     }
     private void initAnimation() {
         List<Animator> animators = new ArrayList<>();
@@ -366,5 +366,11 @@ public class WaveView extends View {
 
         
     }
+
+   
+    
+
+    
+    
     
 }

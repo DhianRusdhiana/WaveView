@@ -2,6 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="Settings">
     
+    <CheckBoxPreference
+        android:title="Enable Wave View"
+        android:key="wave_start"
+        android:summaryOff="Disabled"
+        android:summaryOn="Enabled"
+        android:defaultValue="true" />
+    
     <com.dhian.colorpicker.ColorPickerPreference
         android:key="wave_color"
         android:title="Set Wave Color"
