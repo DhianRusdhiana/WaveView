@@ -31,7 +31,7 @@ public class Settings extends PreferenceActivity
             public boolean onPreferenceChange(Preference preference, Object object) {
                 int w = object.hashCode();
                 wv.setWaveColor(w,adjustAlpha(w,0.4f));
-                Toast.makeText(getBaseContext(),String.valueOf(object),Toast.LENGTH_LONG).show();
+                
                 return true;
             }
         });

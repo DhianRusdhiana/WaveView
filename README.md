@@ -1,3 +1,3 @@
 # WaveView
-
-![Preview](https://cloud.githubusercontent.com/assets/11238815/15624113/9a59ac36-24a9-11e6-8e05-4041b45e7a1f.gif)
+Preview
+![Preview](https://cloud.githubusercontent.com/assets/11238815/15780040/e9a41c84-29c9-11e6-8578-c911bd2dd913.gif)
