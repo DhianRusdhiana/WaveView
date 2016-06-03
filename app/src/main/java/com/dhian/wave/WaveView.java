@@ -245,16 +245,16 @@ public class WaveView extends View {
     private void createShader() {
         
         
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        int width = displayMetrics.widthPixels;
-        int height = displayMetrics.heightPixels;
+        //DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        //int width = displayMetrics.widthPixels;
+        //int height = displayMetrics.heightPixels;
         
-        mDefaultAngularFrequency = 2.0f * Math.PI / DEFAULT_WAVE_LENGTH_RATIO / width;
-        mDefaultAmplitude = height * DEFAULT_AMPLITUDE_RATIO;
-        mDefaultWaterLevel = height * DEFAULT_WATER_LEVEL_RATIO;
-        mDefaultWaveLength = width;
+        mDefaultAngularFrequency = 2.0f * Math.PI / DEFAULT_WAVE_LENGTH_RATIO / getWidth();
+        mDefaultAmplitude = getHeight() * DEFAULT_AMPLITUDE_RATIO;
+        mDefaultWaterLevel = getHeight() * DEFAULT_WATER_LEVEL_RATIO;
+        mDefaultWaveLength = getWidth();
 
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint wavePaint = new Paint();
@@ -263,8 +263,8 @@ public class WaveView extends View {
 
         // Draw default waves into the bitmap
         // y=Asin(ωx+φ)+h
-        final int endX = width + 1;
-        final int endY = height + 1;
+        final int endX = getWidth() + 1;
+        final int endY = getHeight() + 1;
 
         float[] waveY = new float[endX];
 

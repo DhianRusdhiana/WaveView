@@ -9,24 +9,78 @@ import android.view.*;
 import android.content.*;
 import android.content.pm.*;
 import java.util.*;
+import android.support.v7.app.*;
+import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.RecyclerView;
+import android.support.v4.widget.ListViewCompat;
 
-import com.dhian.ApplicationAdapter;
+import com.dhian.ListApplicationAdapter;
+import android.widget.AdapterView.*;
+import android.support.design.widget.*;
+import android.support.v7.widget.*;
+import android.graphics.drawable.*;
+import com.dhian.*;
 
-public class MainActivity extends ListActivity 
+public class MainActivity extends AppCompatActivity
 {
+    private ListApplicationAdapter simpleRecyclerAdapter;
     private PackageManager packageManager = null;
     private List<ApplicationInfo> applist = null;
-	private ApplicationAdapter listadaptor = null;
+    private RecyclerView recyclerView;
+    private FloatingActionButton fab;
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.anim_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
         packageManager = getPackageManager();
+        recyclerView = (RecyclerView)findViewById(R.id.scrollableview);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+		applist = checkForLaunchIntent(packageManager.getInstalledApplications(PackageManager.GET_META_DATA));
 
-		new LoadApplications().execute();
+        if (simpleRecyclerAdapter == null) {
+            recyclerView.setAdapter(new ListApplicationAdapter(MainActivity.this,applist,new ListApplicationAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ApplicationInfo item,int position) {
+                ApplicationInfo app = applist.get(position);
+                try {
+                    Intent intent = packageManager.getLaunchIntentForPackage(app.packageName);
+                    if (null != intent) {
+                        startActivity(intent);
+                    }
+               } catch (ActivityNotFoundException e) {
+
+               } catch (Exception e) {
+
+           }
+       }
+     }));
+     fab = (FloatingActionButton)findViewById(R.id.fab);
+     fab.setOnClickListener(new OnClickListener(){
+         public void onClick(View v){
+             Intent i = new Intent(MainActivity.this,Settings.class);
+             startActivity(i);
+         }
+     });
+   }
+        
+        
+       
     }
+    
+    
+
+    
+    
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -50,26 +104,7 @@ public class MainActivity extends ListActivity
         }
     }
     
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        ApplicationInfo app = applist.get(position);
-        try {
-            Intent intent = packageManager
-                .getLaunchIntentForPackage(app.packageName);
-
-            if (null != intent) {
-                startActivity(intent);
-            }
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(MainActivity.this, e.getMessage(),
-                           Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, e.getMessage(),
-                           Toast.LENGTH_LONG).show();
-        }
-    }
+   
 
     private List<ApplicationInfo> checkForLaunchIntent(List<ApplicationInfo> list) {
         ArrayList<ApplicationInfo> applist = new ArrayList<ApplicationInfo>();
@@ -82,44 +117,9 @@ public class MainActivity extends ListActivity
                 e.printStackTrace();
             }
         }
-
+        
         return applist;
     }
 
-    private class LoadApplications extends AsyncTask<Void, Void, Void> {
-        private ProgressDialog progress = null;
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            applist = checkForLaunchIntent(packageManager.getInstalledApplications(PackageManager.GET_META_DATA));
-            listadaptor = new ApplicationAdapter(MainActivity.this,
-                                                 R.layout.snippet_list_row, applist);
-
-            return null;
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            setListAdapter(listadaptor);
-            progress.dismiss();
-            super.onPostExecute(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            progress = ProgressDialog.show(MainActivity.this, null,
-                                           "Loading application info...");
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-	}
+    
 }
